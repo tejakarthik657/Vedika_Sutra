@@ -9,7 +9,6 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label"; // Note: Label is not used directly, FormLabel is
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -55,27 +54,51 @@ export default function ContactSection() {
     },
   });
 
-  // --- MODIFIED SECTION START ---
+  // --- MODIFIED & ENHANCED SECTION START ---
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      // 1. Construct the full API URL using the environment variable
+      // --- Step 1: Save the inquiry to your database via API ---
       const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/contact`;
-
-      // 2. Use the full URL in the POST request
       await axios.post(apiUrl, data);
 
-      toast.success("Message sent successfully! We'll get back to you soon.");
+      // --- Step 2: If database submission is successful, prepare and open WhatsApp ---
+      
+      // The target WhatsApp number (country code without '+' or spaces)
+      const whatsappNumber = "918520974962"; 
+      
+      // Construct a well-formatted message for WhatsApp
+      const textMessage = `
+*New Event Inquiry from Website*
+
+*Name:* ${data.name}
+*Email:* ${data.email}
+*Phone:* ${data.phone}
+*Event Type:* ${data.eventType}
+
+*Message:*
+${data.message}
+      `;
+
+      // Create the WhatsApp URL with the encoded message
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(textMessage)}`;
+      
+      // Open WhatsApp in a new browser tab
+      window.open(whatsappUrl, "_blank");
+
+      // Notify user of success and next step
+      toast.success("Inquiry saved! Opening WhatsApp for you to send the message.");
       form.reset();
+
     } catch (error) {
-      // 3. Add more detailed error logging for easier debugging
+      // Handle errors from the API call
       console.error("Error submitting contact form:", error);
-      toast.error("Failed to send message. Please try again or contact us directly.");
+      toast.error("Failed to save your inquiry. Please try again or contact us directly.");
     } finally {
       setIsSubmitting(false);
     }
   };
-  // --- MODIFIED SECTION END ---
+  // --- MODIFIED & ENHANCED SECTION END ---
 
   return (
     <section id="contact" className="py-20 bg-card">
@@ -168,13 +191,13 @@ export default function ContactSection() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="wedding">Wedding</SelectItem>
-                          <SelectItem value="corporate">Corporate Event</SelectItem>
-                          <SelectItem value="birthday">Birthday Party</SelectItem>
-                          <SelectItem value="anniversary">Anniversary</SelectItem>
-                          <SelectItem value="baby-shower">Baby Shower</SelectItem>
-                          <SelectItem value="graduation">Graduation</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                          <SelectItem value="Wedding">Wedding</SelectItem>
+                          <SelectItem value="Corporate Event">Corporate Event</SelectItem>
+                          <SelectItem value="Birthday Party">Birthday Party</SelectItem>
+                          <SelectItem value="Anniversary">Anniversary</SelectItem>
+                          <SelectItem value="Baby Shower">Baby Shower</SelectItem>
+                          <SelectItem value="Graduation">Graduation</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage className="text-destructive animate-shake" />
@@ -213,15 +236,15 @@ export default function ContactSection() {
                   {isSubmitting ? (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                      Sending Message...
+                      Submitting...
                     </div>
                   ) : (
-                    "Send Message"
+                    "Submit & Send on WhatsApp"
                   )}
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center">
-                  Your information is secure and will only be used to respond to your inquiry.
+                  Your information is secure. We'll save your inquiry and open WhatsApp for you to confirm.
                 </p>
               </form>
             </Form>
@@ -229,7 +252,6 @@ export default function ContactSection() {
 
           {/* Contact Details (Unchanged) */}
           <div className="order-2 lg:order-2 space-y-8">
-            {/* ... Rest of the component is identical ... */}
             <div>
               <h3 className="text-2xl font-heading font-semibold text-foreground mb-6">
                 Get In Touch
