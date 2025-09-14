@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/api";
 
 export default function AdminLogin() {
   const [username, setUsername] = useState("");
@@ -35,7 +35,7 @@ export default function AdminLogin() {
     e.preventDefault();
     setError("");
     try {
-      const res = await axios.post("http://localhost:5000/api/admin/login", {
+      const res = await api.post("/api/admin/login", {
         username,
         password
       });
