@@ -8,27 +8,6 @@ function getAdminToken() {
   }
   return null;
 }
-// Admin: Delete event
-const handleDelete = async (eventId: string) => {
-  const token = getAdminToken();
-  if (!token) return;
-  try {
-    await api.delete(`/api/gallery/${eventId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setGalleryEvents(events => events.filter(e => e._id !== eventId));
-  } catch {
-    // Optionally show error
-  }
-};
-
-// Admin: Undo delete (re-fetch from backend)
-const handleUndo = async () => {
-  try {
-    const res = await api.get("/api/gallery");
-    setGalleryEvents(res.data);
-  } catch {}
-};
 
 import { useState, useCallback, useEffect } from "react";
 import api, { API_BASE_URL } from "@/lib/api";
@@ -67,6 +46,28 @@ export default function GallerySection() {
   // Helper to check if user is admin (simple session check)
   const isAdmin = typeof window !== 'undefined' && sessionStorage.getItem('isAdmin') === 'true';
 
+  // Admin: Delete event
+  const handleDelete = async (eventId: string) => {
+    const token = getAdminToken();
+    if (!token) return;
+    try {
+      await api.delete(`/api/gallery/${eventId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setGalleryEvents(events => events.filter(e => e._id !== eventId));
+    } catch {
+      // Optionally show error
+    }
+  };
+
+  // Admin: Undo delete (re-fetch from backend)
+  const handleUndo = async () => {
+    try {
+      const res = await api.get("/api/gallery");
+      setGalleryEvents(res.data);
+    } catch {}
+  };
+
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -91,8 +92,8 @@ export default function GallerySection() {
   // Combine static images and backend events
   const allImages = [
     ...galleryImages,
-  ...galleryEvents.flatMap((event, idx) =>
-      event.images.map((img, i) => ({
+  ...galleryEvents.flatMap((event: any, idx: number) =>
+      event.images.map((img: string, i: number) => ({
         id: `be-${event._id}-${i}`,
         src: img.startsWith("http") ? img : `${API_BASE_URL}${img}`,
         alt: event.eventName || "Admin Memory",
