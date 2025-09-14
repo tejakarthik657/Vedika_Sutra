@@ -340,12 +340,12 @@ export default function GallerySection() {
                 </div>
 
                 {/* Image Info */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-8">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-8">
                   <div className="text-white max-w-4xl mx-auto">
-                    <h3 className="text-xl font-semibold mb-2">
+                    <h3 className="text-xl font-semibold mb-2 text-white">
                       {selectedImage.caption}
                     </h3>
-                    <div className="flex flex-wrap gap-4 text-sm text-white/80">
+                    <div className="flex flex-wrap gap-4 text-sm text-white">
                       {selectedImage.eventType && (
                         <span>Event: {selectedImage.eventType}</span>
                       )}
@@ -353,7 +353,7 @@ export default function GallerySection() {
                         <span>Date: {selectedImage.date}</span>
                       )}
                       {selectedImage.location && (
-                        <span>Location: {selectedImage.location}</span>
+                        <span>Location: <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedImage.location)}`} target="_blank" rel="noopener noreferrer" className="underline text-white hover:text-gray-300">{selectedImage.location}</a></span>
                       )}
                     </div>
                   </div>
